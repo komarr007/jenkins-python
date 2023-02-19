@@ -16,9 +16,31 @@ pipeline {
                 }
             }
         }
-        stage('Deliver') {
+        stage('Manual Approval') {
+            steps {
+                script {
+                    def userInput = input(
+                        id: 'userInput',
+                        message: 'Do you want to proceed to the deployment stage?',
+                        parameters: [
+                            [$class: 'BooleanParameterDefinition', defaultValue: false, name: 'proceed'],
+                            [$class: 'BooleanParameterDefinition', defaultValue: false, name: 'abort']
+                        ]
+                    )
+                    if (userInput.proceed) {
+                        echo 'Continue to deploy stage'
+                    } else if (userInput.abort) {
+                        echo 'aborting the process'
+                        error('Execution aborted by user')
+                    }
+                }
+            }
+        }
+        stage('Deploy') {
             steps {
                 sh 'pyinstaller --onefile sources/add2vals.py'
+                sleep time: 60, unit: 'SECONDS'
+                sh './jenkins/scripts/kill.sh'
             }
             post {
                 success {
