@@ -30,7 +30,6 @@ pipeline {
                 sh 'pyinstaller --onefile sources/add2vals.py'
                 sh './dist/add2vals &'
                 sleep 60
-                sh './kill.sh'
             }
             post {
                 success {
